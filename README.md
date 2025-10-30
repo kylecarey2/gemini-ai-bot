@@ -1,7 +1,7 @@
 # Google GenAI personal assistant
 Created for CS3560 - Software Engineering Tools and Best Practices. This could possibly be expanded on in the future
 ## Usage
-Ensure that both python 3.12+ and pip are installed. To use, ensure that both google-genai and PIL is installed (I recommend using a virtual environment):
+Ensure that both python 3.10+ and pip are installed. To use, ensure that both google-genai and PIL is installed (I recommend using a virtual environment):
 ```bash
 pip install -q -U google-genai
 pip install pillow

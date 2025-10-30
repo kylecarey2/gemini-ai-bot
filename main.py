@@ -11,17 +11,24 @@ client = genai.Client()
 
 def img_gen(prompt: str):
     # Get img response
-    response = client.models.generate_images(
-        model='imagen-4.0-generate-001',
-        prompt=prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=4,
+    try:
+        response = client.models.generate_images(
+            model='imagen-4.0-generate-001',
+            prompt=prompt,
+            config=types.GenerateImagesConfig(
+                number_of_images=4,
+            ),
         )
-    )
-    
+    except:
+        print("Could not generate requested images")
+
     # Create file directory if needed
     if not os.path.exists("generated_images"):
         os.makedirs("generated_images")
+
+    if response.generated_images is None:
+        print("No images generated")
+        sys.exit(0)
 
     # Add generated images to directory 
     for i, generated_image in enumerate(response.generated_images):
@@ -58,7 +65,8 @@ def chat(prompt: str):
         contents=prompt,
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(thinking_budget=0),
-            tools=[utils.get_wikipedia_summary, utils.get_current_datetime, utils.calculate_expression, utils.get_random_joke, utils.get_public_ip_address]
+            tools=[utils.get_wikipedia_summary, utils.get_current_datetime, utils.calculate_expression, utils.get_random_joke, utils.get_public_ip_address],
+            system_instruction="If you are able to use the tools, do so. If not, create the answer yourself"
         ),
     )
     

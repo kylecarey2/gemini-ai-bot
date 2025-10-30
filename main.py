@@ -5,11 +5,12 @@ from PIL import Image
 import os
 import utils
 
+# Define Model and client
 MODEL = "gemini-2.5-flash"
-
 client = genai.Client()
 
 def img_gen(prompt: str):
+    # Get img response
     response = client.models.generate_images(
         model='imagen-4.0-generate-001',
         prompt=prompt,
@@ -18,17 +19,19 @@ def img_gen(prompt: str):
         )
     )
     
+    # Create file directory if needed
     if not os.path.exists("generated_images"):
         os.makedirs("generated_images")
 
+    # Add generated images to directory 
     for i, generated_image in enumerate(response.generated_images):
         file_path = os.path.join("generated_images", f"generated_image_{i}.png")
-        
         generated_image.image.save(file_path)
         print(f"Image saved to {file_path}")
         
 
 def img_describe(path: str):
+    # Get image from path, exit if error occurs
     try:
         image = Image.open(path)
     except:
@@ -37,18 +40,21 @@ def img_describe(path: str):
     
     print("Thinking...")
     
+    # Get response
     response = client.models.generate_content_stream(
-        model="gemini-2.5-flash",
+        model=MODEL,
         contents=[image, "Explain or solve this image"]
     )
 
+    # Output response
     for chunk in response:
         print(chunk.text, end="")
 
 
 def chat(prompt: str):
+    # Get response
     response = client.models.generate_content_stream(
-        model="gemini-2.5-flash", 
+        model=MODEL, 
         contents=prompt,
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(thinking_budget=0),
@@ -56,23 +62,28 @@ def chat(prompt: str):
         ),
     )
     
+    # Output data 
     for chunk in response:
         print(chunk.text, end="")
 
 
 if __name__ == "__main__":
     # argv list: main.py _ ...
-    print(utils.get_wikipedia_summary("Adolf Hitler"))
+
     if len(sys.argv) < 2:
         prompt = input("What would you like to ask? ")
         chat(prompt)
     elif sys.argv[1] == "img":
-        path = sys.argv[2]
+        try:
+            path = sys.argv[2]
+        except:
+            path = input("Input image path: ")
         img_describe(path)
     elif sys.argv[1] == "imggen":
         prompt = input("What would you like to generate? ")
         img_gen(prompt)
     else: 
+        print("USAGE: python main.py [img, imggen]")
         prompt = input("What would you like to ask? ")
         chat(prompt)
 
